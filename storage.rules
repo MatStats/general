@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /audio/{conversationId}/{fileName} {
+      allow read, write: if isMember(conversationId);
+    }
+
+    function isMember(conversationId) {
+      return request.auth != null
+        && exists(/databases/(default)/documents/conversations/$(conversationId))
+        && request.auth.uid in get(/databases/(default)/documents/conversations/$(conversationId)).data.memberUids;
+    }
+  }
+}
